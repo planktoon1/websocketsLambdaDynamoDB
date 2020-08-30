@@ -1,0 +1,44 @@
+{
+    "properties": {
+        "TableName": "clients",
+        "BillingMode": "PAY_PER_REQUEST",
+        "AttributeDefinitions": [
+            {
+                "AttributeName": "connectionId",
+                "AttributeType": "S"
+            },
+            {
+                "AttributeName": "id",
+                "AttributeType": "S"
+            }
+        ],
+        "TimeToLiveSpecification": {
+            "AttributeName": "ttl",
+            "Enabled": "true"
+        },
+        "KeySchema": [
+            {
+                "AttributeName": "connectionId",
+                "KeyType": "HASH"
+            },
+            {
+                "AttributeName": "id",
+                "KeyType": "RANGE"
+            }
+        ],
+        "GlobalSecondaryIndexes": [
+            {
+                "IndexName": "id-index",
+                "KeySchema": [
+                    {
+                        "AttributeName": "connectionId",
+                        "KeyType": "HASH"
+                    }
+                ],
+                "Projection": {
+                    "ProjectionType": "ALL"
+                }
+            }
+        ]
+    }
+}

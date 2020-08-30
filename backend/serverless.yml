@@ -1,0 +1,42 @@
+service: websocketsLambdaDynamoDB
+
+provider:
+  name: aws
+  stage: ${opt:stage, 'dev'}
+  runtime: nodejs12.x
+  region: eu-central-1
+  timeout: 12 # optional, in seconds, default is 6
+  iamManagedPolicies:
+  iamRoleStatements:
+    - Effect: Allow
+      Action:
+        - dynamodb:PutItem
+        - dynamodb:GetItem
+        - dynamodb:Query
+        - dynamodb:DeleteItem
+      Resource: "*"
+  environment:
+    STAGE: ${self:provider.stage}
+  apiKeys: # List of API keys to be used by your service API Gateway REST API
+    - ${self:provider.stage}-private
+
+functions:
+  handleConnections:
+    description: Websocket Connection Handler
+    handler: src/index.handleConnection
+    events:
+      - websocket:
+          route: $connect
+      - websocket:
+          route: $disconnect
+      - websocket:
+          route: $default
+
+resources:
+  Resources:
+    Clients:
+      Type: "AWS::DynamoDB::Table"
+      Properties: ${file(./resources/dbconfig.json):properties}
+
+plugins:
+  - serverless-plugin-typescript
