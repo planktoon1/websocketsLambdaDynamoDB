@@ -19,6 +19,15 @@ export class Client {
     this.connectionId = params.connectionId;
   }
 
+  static async getAllConnections() {
+    const res = await ddb
+      .scan({
+        TableName: "clients",
+      })
+      .promise();
+    return res.Items ? res.Items : [];
+  }
+
   async connect(params: ConnectParams) {
     const { connectionId } = this;
     const { id, callbackURL, connectedAt } = params;

@@ -1,5 +1,6 @@
 import { APIGatewayEvent } from "aws-lambda";
 import { Client } from "./dynamoDB/Client";
+import AWS from "aws-sdk";
 
 exports.handleConnection = async (event: APIGatewayEvent) => {
   console.log(event.requestContext);
@@ -12,6 +13,7 @@ exports.handleConnection = async (event: APIGatewayEvent) => {
       await disconnect(event);
       break;
     case `$default`:
+      await handleMessages(event);
       break;
 
     default:
@@ -19,6 +21,22 @@ exports.handleConnection = async (event: APIGatewayEvent) => {
   }
 
   return { statusCode: 200 };
+};
+
+const handleMessages = async (event: APIGatewayEvent) => {
+  const connections = await Client.getAllConnections();
+  for (const connection of connections) {
+    const apigwManagementApi = new AWS.ApiGatewayManagementApi({
+      apiVersion: "2018-11-29",
+      endpoint: connection.callbackURL,
+    });
+    await apigwManagementApi
+      .postToConnection({
+        ConnectionId: connection.connectionId,
+        Data: event.body ? event.body : "No",
+      })
+      .promise();
+  }
 };
 
 const connect = async (event: APIGatewayEvent) => {
