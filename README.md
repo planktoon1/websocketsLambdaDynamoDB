@@ -1,2 +1,2 @@
 # websocketsLambdaDynamoDB
-POC of websockets in AWS Lambda. Just for personal learning purposes
+POC of websockets in AWS Lambda. For personal learning purposes
